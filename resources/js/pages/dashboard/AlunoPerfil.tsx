@@ -73,6 +73,9 @@ export default function AlunoPerfil() {
 
     useEffect(() => {
         if (formData?.planos_ativos.length > 0) {
+
+            console.log({formData})
+
             setPlanoAtivoEdit({
                 id: formData.planos_ativos[0].id,
                 plano_id: formData.planos_ativos[0].plano_id?.toString() || '',
@@ -173,11 +176,8 @@ export default function AlunoPerfil() {
         setLoading(true);
         setError(null);
         try {
-
-
-
             await apiFetch<Vencimento>(`/vencimentos/`, {
-                'plano_id': planoAtivoEdit.id,
+                'plano_id': planoAtivoEdit.plano_id,
                 'aluno_id': formData.id,
                 'dia_vencimento': planoAtivoEdit.dia_vencimento,
                 'valor': planoAtivoEdit.valor
