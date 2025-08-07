@@ -1,5 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Aluno } from '../types/Aluno';
+import { apiFetch } from '../utils/api';
+import { PaginatedResponse } from '../types/Pagination';
+
+interface Professor {
+    id: number;
+    nome: string;
+    telefone?: string;
+}
 
 interface AlunoFormModalProps {
     aluno?: Aluno;
@@ -16,6 +24,9 @@ export default function AlunoFormModal({
     loading = false,
     error,
 }: AlunoFormModalProps) {
+    const [professores, setProfessores] = useState<[]>([]);
+
+
     const [formData, setFormData] = useState<Partial<Aluno>>({
         nome: aluno?.nome || '',
         professor_id: aluno?.professor_id || '',
@@ -30,6 +41,17 @@ export default function AlunoFormModal({
         responsavel_telefone: aluno?.responsavel_telefone || '',
         observacao: aluno?.observacao || '',
     });
+
+    useEffect(() => {
+        fetchProfessores();
+    }, []);
+
+
+    async function fetchProfessores() {
+        const data = await apiFetch<PaginatedResponse<Professor>>('/professores');
+        setProfessores(data.data);
+    }
+
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
         const { name, value } = e.target;
@@ -69,17 +91,23 @@ export default function AlunoFormModal({
                         />
                     </div>
 
-                    <div>
-                        <label className="block font-semibold mb-1" htmlFor="professor_id">Professor ID</label>
-                        <input
-                            type="text"
-                            id="professor_id"
+                    <label className="flex flex-col w-full">
+                        Professor:
+                        <select
+                            value={formData.professor_id ?? ''}
                             name="professor_id"
-                            value={formData.professor_id || ''}
                             onChange={handleChange}
-                            className="w-full border border-gray-300 rounded px-3 py-2"
-                        />
-                    </div>
+                            className="border border-gray-300 rounded px-3 py-2 text-sm"
+                        >
+                            <option value="">Selecionar...</option>
+                            {professores.length > 0 && professores.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.nome}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
